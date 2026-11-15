@@ -1,0 +1,12 @@
+const guard=require('../lib/limit');
+module.exports=async function handler(req,res){
+res.setHeader('Cache-Control','no-store');if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});
+if(!process.env.OPENAI_API_KEY)return res.status(503).json({error:'AI writing is not configured. Set OPENAI_API_KEY on the hosting platform.'});
+try{const {source,tone,theme}=req.body||{};if(!source||typeof source.location!=='string'||!Array.isArray(source.months)||source.months.length!==12)return res.status(400).json({error:'Load NASA observations before generating a poem.'});
+const gate=await guard(req,'poem',8);if(!gate.ok)return res.status(gate.status).json({error:gate.error});
+const measurements=source.months.map(m=>({month:String(m.name||'').slice(0,11),temperatureC:typeof m.temp==='number'?m.temp:null,precipitationMM:typeof m.rain==='number'?m.rain:null}));
+const prompt=`Create a wholly original English climate poem. Writing tone: ${String(tone||'reflective').slice(0,30)}. Theme: ${String(theme||'Rainfall').slice(0,50)}. Use these NASA POWER-derived historical monthly observations for ${source.location.slice(0,100)} (${Number(source.year)}): ${JSON.stringify(measurements)}. These data are monthly mean near-surface air temperature (C) and monthly total precipitation (mm), not forecasts. Make a compelling poem of 14-24 lines with an evocative title. Do not claim the values prove climate change, and do not fabricate unsupported statistics, disasters, human anecdotes or NASA endorsements. Clearly separate the artistic metaphor from any numerical claims. Return JSON exactly: {"title":"...","poem":"..."}.`;
+const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify({model:process.env.OPENAI_TEXT_MODEL||'gpt-4.1-mini',response_format:{type:'json_object'},messages:[{role:'system',content:'You are a thoughtful science-informed poet who respects data uncertainty and produces original works.'},{role:'user',content:prompt}],max_tokens:850,temperature:.85})});
+const j=await r.json();if(!r.ok)throw new Error(j.error?.message||'AI service is unavailable.');let out=JSON.parse(j.choices?.[0]?.message?.content||'{}');if(typeof out.poem!=='string'||!out.poem.trim())throw new Error('The AI did not return a poem.');return res.status(200).json({title:String(out.title||'Earth in Twelve Months').slice(0,100),poem:out.poem.slice(0,6000)});
+}catch(e){return res.status(502).json({error:e.message})}
+};
