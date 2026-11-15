@@ -4,24 +4,23 @@ Climate Poet is a website that turns real NASA climate data into sound and poetr
 
 ## The problem
 
-Climate data is widely available, but it is mostly presented as charts, tables, and reports. Most people do not connect with numbers on a page. The result is that the public knows climate change is happening but rarely feels it in a way that stays with them.
+Climate data is everywhere, but it is usually just charts and tables. Most people look at it and move on. They know climate change is happening, but they do not feel it.
 
 ## What it does
 
 You pick a place and a year. The site loads daily temperature and rainfall records from NASA POWER and groups them by month.
 
-Then you can do two things with that data.
+You can hear the data. The Earth Jukebox plays the twelve monthly values as notes, so a year of rainfall or heat becomes a melody. Higher numbers make higher notes. January plays first, then February, and so on.
 
-You can hear it. The Earth Jukebox plays the twelve monthly values as notes, so a year of rainfall or heat becomes a melody. Higher numbers make higher notes. January plays first, then February, and so on. A visualizer shows which month is playing.
+You can also write about it. The Poetry Studio lets you write a poem inspired by what you saw or heard. You can save drafts, record yourself reading, have the browser read the poem out loud, or download it. A button can also ask an AI to write a poem using the data you loaded, so the poem stays tied to the actual numbers.
 
-You can also write about it. The Poetry Studio is where you write a poem inspired by what you saw or heard. You can save drafts, record yourself reading, have the browser read the poem out loud, or download it. There is also a button that asks an AI to write a poem using the data you loaded, so the poem refers to the actual numbers instead of making them up.
+The community page shows poems people submitted and that got approved.
 
-The community page shows poems that people submitted and that got approved. Submissions are reviewed before they go up.
+## How it works
 
-## About the data
+The site is built with plain HTML, CSS, and JavaScript. When you pick a place and year, the page asks a small server function to fetch the daily records from NASA POWER. That function sends back monthly averages for temperature and monthly totals for rainfall, and the page draws the chart and table from that.
 
-NASA POWER gives historical climate data. It is not a live forecast, and it will not match a single weather station exactly. Monthly temperature is the average of the daily values. Monthly rainfall is the total of the daily values.
+The Jukebox takes those twelve monthly numbers and maps each one to a note. Higher values land higher on a scale, lower values land lower. A timer plays the notes in order from January to December, and the bars on screen light up with each month.
 
-The sound is calculated from the numbers. It is not a recording of Earth or space.
+The Poetry Studio keeps drafts in your browser, so they stay on your device until you submit them. The AI buttons send only the loaded numbers and your poem text to the server, which calls the AI model and sends the result back. The community page reads approved poems from a database, and new submissions wait for review before they appear.
 
-AI poems and images are interpretations, not measurements. Read them before you share them.
